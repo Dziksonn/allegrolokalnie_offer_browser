@@ -1,0 +1,60 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    background-color: #f0f0f0;
+    overflow: hidden; /* Prevent scrolling */
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    width: 100vw;
+    height: 100vh;
+}
+.button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    width: 400px; /* Set width to 400px */
+    font-size: 150%;
+}
+
+iframe {
+    flex-grow: 1;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+}
+button {
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    /* border-radius: 5px; */
+    cursor: pointer;
+    flex-grow: 1;
+    margin: 0;
+    font-weight: 550;
+}
+.item-button {
+    background-color: #B30000; /* Darker red color */
+    color: #E7E9EA; /* White text */
+}
+
+.price-button {
+    background-color: #B33A00; /* Darker orange color */
+    color: #E7E9EA; /* White text */
+}
+.skip-button {
+    background-color: #505050; /* Darker grey color */
+    color: #E7E9EA; /* White text */
+}
+
+.okay-button {
+    background-color: #006400; /* Darker green color */
+    color: #E7E9EA; /* White text */
+}
