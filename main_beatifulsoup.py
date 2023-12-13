@@ -3,8 +3,13 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import json
+import db_handler
 
 items_info = []
+
+mongo = db_handler.Main()
+mongo.select_database('allegro')
+mongo.select_collection('allegro_test')
 
 def clear_json():
     with open("items.json", "w") as json_file:
@@ -35,12 +40,7 @@ def item_info(url):
         end_time_element = item.find('span', {'data-mlc-itembox-bidding-remaining-time': True})
         item_timeleft = end_time_element['data-mlc-itembox-bidding-remaining-time']
 
-        items_info.append({
-            "name": item_name,
-            "href": item_link,
-            "price": item_price,
-            "endTime": item_timeleft
-        })
+        mongo.insert_one(item_name, item_link, item_price, item_timeleft)
 
 def main():
     site = input("Wklej link: ")
@@ -55,16 +55,9 @@ def main():
     else:
         site_number = 1
         while True:
-            try:
-                final_link = site + "&page=" + str(site_number)
-                item_info(final_link)
-                print(f"{site_number}. ", end='', flush=True)
-                site_number += 1
-            except:
-                print("Koniec")
-                with open("items.json", "a") as json_file:
-                    json.dump(items_info, json_file, indent=2)
-                # repair_json()
-                break
+            final_link = site + "&page=" + str(site_number)
+            item_info(final_link)
+            print(f"{site_number}. ", end='', flush=True)
+            site_number += 1
 
 main()
