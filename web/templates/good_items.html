@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Item Display</title>
+    </head>
+    <body>
+        <!-- Placeholder element to display item information -->
+        <div id="item-list"></div>
+
+        <script>
+            window.addEventListener("load", function () {
+                setupCollections();
+            });
+
+            function setupCollections() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        displayAndSelectCollection(this.responseText);
+                    }
+                };
+                xhttp.open("GET", "/api/get_collections", true);
+                xhttp.send();
+            }
+
+            function displayAndSelectCollection(responseText) {
+                selectedCollection = prompt(responseText, "allegro_");
+                console.log(selectedCollection);
+                selectCollection(selectedCollection);
+            }
+
+            function selectCollection(collection) {
+                var xhttp = new XMLHttpRequest();
+                url = "/api/select_collection/" + collection;
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        getGoodItemList();
+                    }
+                };
+                xhttp.open("GET", url, true);
+                xhttp.send();
+            }
+
+            function getGoodItemList() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        displayItems(this.responseText);
+                    }
+                };
+                xhttp.open("GET", "/api/get_good_items", true);
+                xhttp.send();
+            }
+
+            function displayItems(items) {
+                items = JSON.parse(items);
+                // Function to format the ending time
+                function formatEndingTime(endingTime) {
+                    // Extract the $date property and convert it to a Date object
+                    const date = new Date(endingTime.$date);
+
+                    const options = {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                        second: "numeric",
+                        timeZone: "Europe/Warsaw",
+                    };
+                    return date.toLocaleString("pl-PL", options);
+                }
+
+                // Get the HTML element to display item information
+                const itemListElement = document.getElementById("item-list");
+
+                // Iterate through the items and display information
+                items.forEach((item) => {
+                    // Create a new paragraph element
+                    const paragraph = document.createElement("p");
+
+                    // Create a link element for the item name
+                    const link = document.createElement("a");
+                    link.href = "https://allegrolokalnie.pl" + item.href;
+                    link.textContent = item.name;
+
+                    // Append the link to the paragraph
+                    paragraph.appendChild(link);
+
+                    // Add the remaining item information to the paragraph
+                    paragraph.innerHTML += ` - Cena: ${
+                        item.price
+                    } zł - Koniec aukcji: ${formatEndingTime(item.endTime)}`;
+
+                    // Append the paragraph to the item list element
+                    itemListElement.appendChild(paragraph);
+                });
+            }
+        </script>
+    </body>
+</html>

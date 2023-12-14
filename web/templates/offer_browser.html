@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tinder</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/offer_browser.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="button-container">
+            <button class="price-button" id="price-button" onclick="setStatus('bad_price')">Chujowa cena</button>
+            <button class="item-button" id="item-button" onclick="setStatus('bad_item')">Chujowy item</button>
+        </div>
+        <iframe frameBorder="0" src="" id="main_iframe"></iframe>
+        <div class="button-container">
+            <button class="skip-button" id="skip-button" onclick="setStatus('skip')">Skip</button>
+            <button class="okay-button" id="okay-button" onclick="setStatus('good')">Git</button>
+        </div>
+    </div>
+    <script>
+        window.addEventListener("load", function(){
+            setupCollections();
+        });
+
+        function getItem() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200){
+                    url = "https://allegrolokalnie.pl" + this.responseText;
+                    document.getElementById("main_iframe").src = url;
+                }
+            };
+            xhttp.open("GET", "/api/get_item", true);
+            xhttp.send();
+        }
+
+        function setupCollections() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200){
+                    displayAndSelectCollection(this.responseText);
+                }
+            };
+            xhttp.open("GET", "/api/get_collections", true);
+            xhttp.send();
+        }
+
+        function displayAndSelectCollection(responseText){
+            selectedCollection = prompt(responseText, "allegro_");
+            console.log(selectedCollection);
+            selectCollection(selectedCollection);
+        }
+
+        function selectCollection(collection){
+            var xhttp = new XMLHttpRequest();
+            url = "/api/select_collection/" + collection;
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200){
+                    getItem();
+                }
+            };
+            xhttp.open("GET", url, true);
+            xhttp.send();
+        }
+
+        function setStatus(status){
+            var xhttp = new XMLHttpRequest();
+            url = "/api/set_status/" + status;
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200){
+                    console.log(this.responseText);
+                    getItem();
+                }
+            };
+            xhttp.open("GET", url, true);
+            xhttp.send();
+        }
+
+
+    </script>
+</body>
+</html>
