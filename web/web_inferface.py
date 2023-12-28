@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import os, sys, inspect
 from bson import json_util
 import json
@@ -8,12 +8,12 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
 import db_handler
+import main_beatifulsoup
 
 mongo = db_handler.Main()
 mongo.select_database("allegro")
 
 app = Flask(__name__)
-
 
 def parse_json(data):
     return json.loads(json_util.dumps(data))
@@ -56,7 +56,10 @@ def get_good_items():
                 "endTime": x["endTime"],
             }
         )
-    return json.dumps(return_data)
+    if return_data == []:
+        return "Good items not found", 400
+    else:
+        return json.dumps(return_data), 200
 
 
 @app.route("/api/get_item")
@@ -96,8 +99,29 @@ def set_status(status):
         pass
     else:
         return "Invalid status", 400
-    data.sorted_list.pop(0)
-    return "Success", 200
+
+    try:
+        data.sorted_list.pop(0)
+        return "Success", 200
+    except:
+        return "No item selected", 400
+
+@app.route("/api/scrape", methods=["POST"])
+def scrape():
+    if request.method=="POST":
+        category = request.form['category']
+        site = request.form['site']
+        scraper = main_beatifulsoup.main(category, site)
+        if scraper == "Doesn't look like a valid allegrolokalnie link.":
+            return scraper, 400
+        elif scraper == "Doesn't have \"?typ=licytacja\" parameter.":
+            return scraper, 400
+        elif scraper == "Done":
+            return scraper, 200
+        else:
+            return scraper, 400
+
+
 
 
 if __name__ == "__main__":
